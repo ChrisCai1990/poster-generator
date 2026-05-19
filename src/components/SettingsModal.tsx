@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { X, Settings2 } from 'lucide-react'
 
 export const AVAILABLE_MODELS = [
-  { id: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5',  note: '最快' },
-  { id: 'claude-sonnet-4-6',         label: 'Claude Sonnet 4.6', note: '推荐' },
-  { id: 'claude-opus-4-7',           label: 'Claude Opus 4.7',   note: '最强' },
+  { id: 'gemini-1.5-flash',   label: 'Gemini 1.5 Flash', note: '免费·快速' },
+  { id: 'gemini-1.5-pro',     label: 'Gemini 1.5 Pro',   note: '免费·推荐' },
+  { id: 'gemini-2.0-flash',   label: 'Gemini 2.0 Flash', note: '最新' },
 ]
 
 interface Props {

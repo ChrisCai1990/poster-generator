@@ -4,31 +4,36 @@ const path = require('path')
 const app = express()
 app.use(express.json())
 
-const API_KEY = process.env.CLAUDE_API_KEY
-const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-6'
+const API_KEY = process.env.GEMINI_API_KEY
+const MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash'
 
 if (!API_KEY) {
-  console.error('ERROR: CLAUDE_API_KEY environment variable is not set')
+  console.error('ERROR: GEMINI_API_KEY environment variable is not set')
   process.exit(1)
 }
 
 app.post('/api/generate', async (req, res) => {
   try {
-    const { messages, model, max_tokens = 1024 } = req.body
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const { prompt, model } = req.body
+    const useModel = model || MODEL
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${API_KEY}`
+
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({ model: model || MODEL, max_tokens, messages }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 1024 },
+      }),
     })
+
     const data = await response.json()
     if (!response.ok) {
       return res.status(response.status).json({ error: data.error?.message || 'API error' })
     }
-    res.json(data)
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    res.json({ text })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -36,7 +41,6 @@ app.post('/api/generate', async (req, res) => {
 
 app.get('/api/health', (_, res) => res.json({ ok: true, model: MODEL }))
 
-// 托管前端静态文件
 app.use(express.static(path.join(__dirname, 'public')))
 app.get('/{*path}', (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')))
 

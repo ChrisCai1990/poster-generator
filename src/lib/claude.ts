@@ -40,11 +40,7 @@ export async function generatePoster(form: PosterForm, model: string): Promise<P
   const res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model,
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
-    }),
+    body: JSON.stringify({ prompt, model }),
   })
 
   if (!res.ok) {
@@ -55,7 +51,7 @@ export async function generatePoster(form: PosterForm, model: string): Promise<P
   }
 
   const json = await res.json()
-  const text: string = json.content?.[0]?.text ?? ''
+  const text: string = json.text ?? ''
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('AI 返回格式异常，请重试')
 
