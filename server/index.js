@@ -4,11 +4,11 @@ const path = require('path')
 const app = express()
 app.use(express.json())
 
-const API_KEY = process.env.GEMINI_API_KEY
-const MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash'
+const API_KEY = process.env.DASHSCOPE_API_KEY
+const MODEL = process.env.QWEN_MODEL || 'qwen-plus'
 
 if (!API_KEY) {
-  console.error('ERROR: GEMINI_API_KEY environment variable is not set')
+  console.error('ERROR: DASHSCOPE_API_KEY environment variable is not set')
   process.exit(1)
 }
 
@@ -16,14 +16,17 @@ app.post('/api/generate', async (req, res) => {
   try {
     const { prompt, model } = req.body
     const useModel = model || MODEL
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${API_KEY}`
 
-    const response = await fetch(url, {
+    const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 1024 },
+        model: useModel,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
       }),
     })
 
@@ -32,7 +35,7 @@ app.post('/api/generate', async (req, res) => {
       return res.status(response.status).json({ error: data.error?.message || 'API error' })
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    const text = data.choices?.[0]?.message?.content ?? ''
     res.json({ text })
   } catch (err) {
     res.status(500).json({ error: err.message })

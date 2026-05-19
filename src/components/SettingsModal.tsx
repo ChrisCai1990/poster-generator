@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { X, Settings2 } from 'lucide-react'
 
 export const AVAILABLE_MODELS = [
-  { id: 'gemini-1.5-flash',   label: 'Gemini 1.5 Flash', note: '免费·快速' },
-  { id: 'gemini-1.5-pro',     label: 'Gemini 1.5 Pro',   note: '免费·推荐' },
-  { id: 'gemini-2.0-flash',   label: 'Gemini 2.0 Flash', note: '最新' },
+  { id: 'qwen-plus',  label: 'Qwen Plus',  note: '推荐' },
+  { id: 'qwen-turbo', label: 'Qwen Turbo', note: '最快' },
+  { id: 'qwen-max',   label: 'Qwen Max',   note: '最强' },
 ]
 
 interface Props {
